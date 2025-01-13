@@ -45,6 +45,18 @@ class MainActivity : AppCompatActivity() {
             currentIndex = (currentIndex + 1) % questionBank.size
             updateQuestion()
         }
+
+        binding.previousButton.setOnClickListener {
+            currentIndex = if (currentIndex - 1 < 0) {
+                // wrap to last question
+//                questionBank.size - 1
+                // stop at first
+                return@setOnClickListener
+            } else {
+                (currentIndex - 1) % questionBank.size
+            }
+            updateQuestion()
+        }
         updateQuestion()
     }
 
