@@ -35,18 +35,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.trueButton.setOnClickListener { view: View ->
              checkAnswer(true)
-//            Snackbar.make(view, "That is correct!", Snackbar.LENGTH_SHORT)
-//                .setBackgroundTint(Color.rgb(0, 153, 0))
-//                .setDuration(1500)
-//                .show()
         }
 
         binding.falseButton.setOnClickListener { view: View ->
             checkAnswer(false)
-//            Snackbar.make(view, "Sorry, that is incorrect.", Snackbar.LENGTH_SHORT)
-//                .setBackgroundTint(Color.rgb(204, 0, 0))
-//                .setDuration(1500)
-//                .show()
         }
 
         binding.nextButton.setOnClickListener {
