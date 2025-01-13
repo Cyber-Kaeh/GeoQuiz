@@ -41,17 +41,22 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(false)
         }
 
+        binding.questionTextView.setOnClickListener {
+            nextQuestion()
+            updateQuestion()
+        }
+
         binding.nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionBank.size
+            nextQuestion()
             updateQuestion()
         }
 
         binding.previousButton.setOnClickListener {
             currentIndex = if (currentIndex - 1 < 0) {
                 // wrap to last question
-//                questionBank.size - 1
+                questionBank.size - 1
                 // stop at first
-                return@setOnClickListener
+//                return@setOnClickListener
             } else {
                 (currentIndex - 1) % questionBank.size
             }
@@ -79,5 +84,9 @@ class MainActivity : AppCompatActivity() {
                 .setDuration(1500)
                 .show()
         }
+    }
+
+    private fun nextQuestion() {
+        currentIndex = (currentIndex + 1) % questionBank.size
     }
 }
