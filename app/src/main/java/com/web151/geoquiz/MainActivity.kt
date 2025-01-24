@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
 import com.google.android.material.snackbar.Snackbar
 import com.web151.geoquiz.databinding.ActivityMainBinding
+import java.util.Locale
 
 private const val TAG = "MainActivity"
 
@@ -60,14 +61,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.previousButton.setOnClickListener {
-            currentIndex = if (currentIndex - 1 < 0) {
-                // wrap to last question
-//                questionBank.size - 1
-                // stop at first
-                return@setOnClickListener
-            } else {
-                (currentIndex - 1) % questionBank.size
-            }
+            prevQuestion()
             updateQuestion()
         }
         updateQuestion()
@@ -136,22 +130,34 @@ class MainActivity : AppCompatActivity() {
         currentIndex = (currentIndex + 1) % questionBank.size
     }
 
-    private fun checkQuestions() {
-        var allAnswered = false
-        for (i in questionBank){
-            if (i.isAnswered) {
-                allAnswered = true
-            } else {
-                allAnswered = false
-            }
+    private fun prevQuestion() {
+        currentIndex = if (currentIndex - 1 < 0) {
+            // wrap to last question
+                questionBank.size - 1
+            // stop at first
+//            return@setOnClickListener
+        } else {
+            (currentIndex - 1) % questionBank.size
         }
+    }
+
+    private fun checkQuestions() {
+        var allAnswered = questionBank.all { it.isAnswered }
         if (allAnswered) {
             Snackbar.make(binding.root,
-                "All questions answered! You got $correctAnswers right!",
+                "All questions answered! You got ${calcScore()}% right!",
                 Snackbar.ANIMATION_MODE_SLIDE)
                 .setBackgroundTint(Color.rgb(64, 64, 64))
                 .setDuration(5000)
                 .show()
         }
     }
+
+    private fun calcScore(): String {
+        val percentage = (correctAnswers.toDouble() / questionBank.size.toDouble()) * 100
+        val formattedPercentage = String.format("%.2f", percentage)
+        Log.d(TAG, "Percentage: $formattedPercentage")
+        return formattedPercentage
+    }
+
 }
