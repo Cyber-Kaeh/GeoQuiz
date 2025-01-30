@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
+import androidx.activity.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.web151.geoquiz.databinding.ActivityMainBinding
 import java.util.Locale
@@ -19,6 +20,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
+    private val quizViewModel: QuizViewModel by viewModels()
     private val questionBank = listOf(
         Question(R.string.question_asia, true, false, false),
         Question(R.string.question_americas, true, false, false),
@@ -36,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
 
         val questionTextResId = questionBank[currentIndex].textResId
         binding.questionTextView.setText(questionTextResId)
