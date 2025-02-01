@@ -21,27 +21,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val quizViewModel: QuizViewModel by viewModels()
-    private val questionBank = listOf(
-        Question(R.string.question_asia, true, false, false),
-        Question(R.string.question_americas, true, false, false),
-        Question(R.string.question_africa, false, false, false),
-        Question(R.string.question_oceans, true, false, false),
-        Question(R.string.question_mideast, false, false, false),
-        Question(R.string.question_australia, true, false, false)
-    )
-    private var currentIndex = 0
-    private var correctAnswers = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate(Bundle?) called")    // Added log msg
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
-
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
 
         binding.trueButton.setOnClickListener { view: View ->
@@ -55,51 +42,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.questionTextView.setOnClickListener {
-            nextQuestion()
+            quizViewModel.moveToNext()
             updateQuestion()
         }
 
         binding.nextButton.setOnClickListener {
-            nextQuestion()
+            quizViewModel.moveToNext()
             updateQuestion()
         }
 
         binding.previousButton.setOnClickListener {
-            prevQuestion()
+            quizViewModel.moveToPrevious()
             updateQuestion()
         }
         updateQuestion()
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "onStart() called")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume() called")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG, "onPause() called")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG, "onStop() called")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "onDestroy() called")
-    }
-
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
-        if (questionBank[currentIndex].isAnswered) {
+        if (quizViewModel.checkIsAnswered) {
             binding.trueButton.isEnabled = false
             binding.falseButton.isEnabled = false
         } else {
@@ -110,14 +72,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAnswer(userAnswer:Boolean){
-        val correctAnswer = questionBank[currentIndex].answer
-        Log.d(TAG, "Current question index: $currentIndex")
-        questionBank[currentIndex].isAnswered = true
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+        quizViewModel.setIsAnswered = true
         binding.trueButton.isEnabled = false
         binding.falseButton.isEnabled = false
 
         val messageResId = if(userAnswer == correctAnswer){
-            correctAnswers++
+            quizViewModel.setIsCorrect = true
             Snackbar.make(binding.root, "That is correct!", Snackbar.LENGTH_SHORT)
                 .setBackgroundTint(Color.rgb(0, 153, 0))
                 .setDuration(1500)
@@ -130,24 +91,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun nextQuestion() {
-        currentIndex = (currentIndex + 1) % questionBank.size
-    }
-
-    private fun prevQuestion() {
-        currentIndex = if (currentIndex - 1 < 0) {
-            // wrap to last question
-                questionBank.size - 1
-            // stop at first
-//            return@setOnClickListener
-        } else {
-            (currentIndex - 1) % questionBank.size
-        }
-    }
-
     private fun checkQuestions() {
-        var allAnswered = questionBank.all { it.isAnswered }
-        if (allAnswered) {
+        if (quizViewModel.allAnswered) {
             Snackbar.make(binding.root,
                 "All questions answered! You got ${calcScore()}% right!",
                 Snackbar.ANIMATION_MODE_SLIDE)
@@ -158,8 +103,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun calcScore(): String {
-        val percentage = (correctAnswers.toDouble() / questionBank.size.toDouble()) * 100
-        val formattedPercentage = String.format("%.2f", percentage)
+        val formattedPercentage = String.format("%.2f", quizViewModel.percentage)
         Log.d(TAG, "Percentage: $formattedPercentage")
         return formattedPercentage
     }
