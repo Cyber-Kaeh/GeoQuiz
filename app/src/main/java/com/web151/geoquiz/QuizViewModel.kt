@@ -70,11 +70,14 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel()
             (currentIndex - 1) % questionBank.size
         }
     }
-    fun logQuestionStates() {
-        questionBank.forEachIndexed { index, question ->
-            Log.d(TAG, "Question $index - isCorrect: ${question.isCorrect}, isAnswered: ${question.isAnswered}")
+
+    fun reset() {
+        questionBank.forEach { question ->
+            question.isAnswered = false
+            question.isCorrect = false
         }
-        Log.d(TAG, "local percentage: ${percentage}")
+        currentIndex = 0
+        savedStateHandle.set(CURRENT_INDEX_KEY, currentIndex)
     }
 
 }

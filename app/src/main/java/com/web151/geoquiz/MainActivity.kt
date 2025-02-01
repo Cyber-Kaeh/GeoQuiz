@@ -55,6 +55,16 @@ class MainActivity : AppCompatActivity() {
             quizViewModel.moveToPrevious()
             updateQuestion()
         }
+
+        binding.resetButton.setOnClickListener {
+            quizViewModel.reset()
+            updateQuestion()
+            Snackbar.make(binding.root, "Quiz Reset!", Snackbar.LENGTH_LONG)
+                .setTextColor(Color.BLACK)
+                .setBackgroundTint(Color.rgb(0, 255, 255))
+                .setDuration(5000)
+                .show()
+        }
         updateQuestion()
     }
 
