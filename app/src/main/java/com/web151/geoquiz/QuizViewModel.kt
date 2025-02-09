@@ -83,6 +83,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel()
         }
         currentIndex = 0
         savedStateHandle.set(CURRENT_INDEX_KEY, currentIndex)
+        savedStateHandle.set(IS_CHEATER_KEY, false)
     }
 
 }
