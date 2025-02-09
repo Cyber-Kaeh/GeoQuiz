@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -105,18 +106,22 @@ class MainActivity : AppCompatActivity() {
         binding.trueButton.isEnabled = false
         binding.falseButton.isEnabled = false
 
-        val messageResId = if(userAnswer == correctAnswer){
-            quizViewModel.setIsCorrect = true
-            Snackbar.make(binding.root, "That is correct!", Snackbar.LENGTH_SHORT)
-                .setBackgroundTint(Color.rgb(0, 153, 0))
-                .setDuration(1500)
-                .show()
-        } else {
-            Snackbar.make(binding.root, "Sorry, that is incorrect.", Snackbar.LENGTH_SHORT)
-                .setBackgroundTint(Color.rgb(204, 0, 0))
-                .setDuration(1500)
-                .show()
+        val messageResId = when {
+            quizViewModel.isCheater -> R.string.judgment_toast
+            userAnswer == correctAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
         }
+
+        Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_SHORT)
+            .setBackgroundTint(
+                when {
+                    quizViewModel.isCheater -> Color.rgb(255,165, 0)
+                    userAnswer == correctAnswer -> Color.rgb(0, 153, 0)
+                    else -> Color.rgb(204, 0, 0)
+                }
+            )
+            .setDuration(1500)
+            .show()
     }
 
     private fun checkQuestions() {
