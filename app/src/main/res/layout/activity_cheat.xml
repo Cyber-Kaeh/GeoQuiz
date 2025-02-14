@@ -15,6 +15,13 @@
         android:text="@string/warning_text"/>
 
     <TextView
+        android:id="@+id/tokens_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        tools:text="Tokens"/>
+
+    <TextView
         android:id="@+id/answer_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

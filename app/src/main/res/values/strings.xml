@@ -13,8 +13,10 @@
     <string name="correct_toast">That is correct!</string>
     <string name="incorrect_toast">Sorry, that is incorrect.</string>
     <string name="reset_button">Reset</string>
-    <string name="warning_text">Are you sure you want to do this?</string>
+    <string name="warning_text">Cheating requires 1 cheat token.</string>
     <string name="show_answer_button">Show Answer</string>
     <string name="cheat_button">Cheat!</string>
     <string name="judgment_toast">Cheating is wrong.</string>
+    <string name="judgement_correct">Did you really know the answer to that one?</string>
+    <string name="judgement_incorrect">You cheated and still got it wrong?!</string>
 </resources>

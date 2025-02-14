@@ -33,8 +33,14 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         // Handle the result
         if (result.resultCode == Activity.RESULT_OK) {
-            quizViewModel.isCheater =
-                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            val cheated = result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            val remainingTokens = result.data?.getIntExtra(CHEAT_TOKENS, quizViewModel.cheatTokens)
+                ?: quizViewModel.cheatTokens
+
+            if (cheated) {
+                quizViewModel.isCheater = true
+                quizViewModel.cheatTokens = remainingTokens
+            }
         }
     }
 
@@ -85,13 +91,23 @@ class MainActivity : AppCompatActivity() {
         binding.cheatButton.setOnClickListener {
             // start CheatActivity
             val answerIsTrue = quizViewModel.currentQuestionAnswer
-            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            cheatLauncher.launch(intent)
+
+            if (quizViewModel.cheatTokens > 0) {
+                val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue,
+                    quizViewModel.cheatTokens)
+                cheatLauncher.launch(intent)
+            } else {
+                Snackbar.make(binding.root, "No cheat tokens left!", Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.rgb(255, 165, 0))
+                    .setDuration(2500)
+                    .show()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    blurCheatButton()
+                }
+            }
+
         }
         updateQuestion()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            blurCheatButton()
-        }
     }
 
     private fun updateQuestion() {
@@ -113,22 +129,28 @@ class MainActivity : AppCompatActivity() {
         binding.trueButton.isEnabled = false
         binding.falseButton.isEnabled = false
 
-        val messageResId = when {
-            quizViewModel.isCheater -> R.string.judgment_toast
-            userAnswer == correctAnswer -> R.string.correct_toast
-            else -> R.string.incorrect_toast
+        when {
+            quizViewModel.isCheater -> {
+                Snackbar.make(binding.root, getString(R.string.judgment_toast), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.rgb(255, 165, 0))
+                    .setDuration(3500)
+                    .show()
+            }
+            userAnswer == correctAnswer -> {
+                quizViewModel.setIsCorrect = true
+                Snackbar.make(binding.root, getString(R.string.correct_toast), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.rgb(0, 153, 0))
+                    .setDuration(1500)
+                    .show()
+            }
+            else -> {
+                quizViewModel.setIsCorrect = false
+                Snackbar.make(binding.root, getString(R.string.incorrect_toast), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.rgb(204, 0, 0))
+                    .setDuration(1500)
+                    .show()
+            }
         }
-
-        Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_SHORT)
-            .setBackgroundTint(
-                when {
-                    quizViewModel.isCheater -> Color.rgb(255,165, 0)
-                    userAnswer == correctAnswer -> Color.rgb(0, 153, 0)
-                    else -> Color.rgb(204, 0, 0)
-                }
-            )
-            .setDuration(1500)
-            .show()
     }
 
     private fun checkQuestions() {

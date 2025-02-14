@@ -9,6 +9,7 @@ import com.google.android.material.snackbar.Snackbar
 private const val TAG = "QuizViewModel"
 const val CURRENT_INDEX_KEY = "CURRENT_INDEX_KEY"
 const val IS_CHEATER_KEY = "IS_CHEATER_KEY"
+const val CHEAT_TOKENS_KEY = "CHEAT_TOKENS_KEY"
 
 class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel() {
     private val questionBank = listOf(
@@ -20,9 +21,13 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel()
         Question(R.string.question_australia, true, false, false)
     )
 
+    var cheatTokens: Int
+        get() = savedStateHandle.get(CHEAT_TOKENS_KEY) ?: 3
+        set(value) = savedStateHandle.set(CHEAT_TOKENS_KEY, value)
+
     var isCheater: Boolean
-        get() = savedStateHandle.get(IS_CHEATER_KEY) ?: false
-        set(value) = savedStateHandle.set(IS_CHEATER_KEY, value)
+        get() = savedStateHandle.get("${IS_CHEATER_KEY}_$currentIndex") ?: false
+        set(value) = savedStateHandle.set("${IS_CHEATER_KEY}_$currentIndex", value)
 
     private var currentIndex: Int
         get() = savedStateHandle.get(CURRENT_INDEX_KEY)?: 0
@@ -76,6 +81,15 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel()
         }
     }
 
+    fun useToken(): Boolean {
+        return if (cheatTokens > 0) {
+            cheatTokens -= 1
+            true
+        } else {
+            false
+        }
+    }
+
     fun reset() {
         questionBank.forEach { question ->
             question.isAnswered = false
@@ -84,6 +98,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel()
         currentIndex = 0
         savedStateHandle.set(CURRENT_INDEX_KEY, currentIndex)
         savedStateHandle.set(IS_CHEATER_KEY, false)
+        savedStateHandle.set(CHEAT_TOKENS_KEY, 3)
     }
 
 }
