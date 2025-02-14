@@ -3,6 +3,9 @@ package com.web151.geoquiz
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,6 +18,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import com.google.android.material.snackbar.Snackbar
 import com.web151.geoquiz.databinding.ActivityMainBinding
 import java.util.Locale
@@ -85,6 +89,9 @@ class MainActivity : AppCompatActivity() {
             cheatLauncher.launch(intent)
         }
         updateQuestion()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            blurCheatButton()
+        }
     }
 
     private fun updateQuestion() {
@@ -139,6 +146,16 @@ class MainActivity : AppCompatActivity() {
         val formattedPercentage = String.format("%.2f", quizViewModel.percentage)
         Log.d(TAG, "Percentage: $formattedPercentage")
         return formattedPercentage
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun blurCheatButton() {
+        val effect = RenderEffect.createBlurEffect(
+            10.0f,
+            10.0f,
+            Shader.TileMode.CLAMP
+        )
+        binding.cheatButton.setRenderEffect(effect)
     }
 
 }
