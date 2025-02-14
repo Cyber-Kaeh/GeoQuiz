@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.core.content.IntentSanitizer
 import com.google.android.material.snackbar.Snackbar
 import com.web151.geoquiz.databinding.ActivityMainBinding
 import java.util.Locale
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity() {
                 ?: quizViewModel.cheatTokens
 
             if (cheated) {
-                quizViewModel.isCheater = true
+                quizViewModel.questionBank[quizViewModel.currentIndex].isCheated = true
                 quizViewModel.cheatTokens = remainingTokens
             }
         }
@@ -80,7 +81,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.resetButton.setOnClickListener {
             quizViewModel.reset()
-            updateQuestion()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                unblurCheatButton()
+            }
+//            updateQuestion()
             Snackbar.make(binding.root, "Quiz Reset!", Snackbar.LENGTH_LONG)
                 .setTextColor(Color.BLACK)
                 .setBackgroundTint(Color.rgb(0, 255, 255))
@@ -130,22 +134,26 @@ class MainActivity : AppCompatActivity() {
         binding.falseButton.isEnabled = false
 
         when {
-            quizViewModel.isCheater -> {
-                Snackbar.make(binding.root, getString(R.string.judgment_toast), Snackbar.LENGTH_SHORT)
-                    .setBackgroundTint(Color.rgb(255, 165, 0))
-                    .setDuration(3500)
-                    .show()
-            }
             userAnswer == correctAnswer -> {
                 quizViewModel.setIsCorrect = true
-                Snackbar.make(binding.root, getString(R.string.correct_toast), Snackbar.LENGTH_SHORT)
+                val messageResId = if (quizViewModel.isCheater) {
+                    R.string.judgement_correct
+                } else {
+                    R.string.correct_toast
+                }
+                Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_SHORT)
                     .setBackgroundTint(Color.rgb(0, 153, 0))
                     .setDuration(1500)
                     .show()
             }
             else -> {
                 quizViewModel.setIsCorrect = false
-                Snackbar.make(binding.root, getString(R.string.incorrect_toast), Snackbar.LENGTH_SHORT)
+                val messageResId = if (quizViewModel.isCheater) {
+                    R.string.judgement_incorrect
+                } else {
+                    R.string.incorrect_toast
+                }
+                Snackbar.make(binding.root, getString(messageResId), Snackbar.LENGTH_SHORT)
                     .setBackgroundTint(Color.rgb(204, 0, 0))
                     .setDuration(1500)
                     .show()
@@ -178,6 +186,11 @@ class MainActivity : AppCompatActivity() {
             Shader.TileMode.CLAMP
         )
         binding.cheatButton.setRenderEffect(effect)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun unblurCheatButton() {
+        binding.cheatButton.setRenderEffect(null)  // Removes blur effect
     }
 
 }

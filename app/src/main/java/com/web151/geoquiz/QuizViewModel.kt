@@ -1,6 +1,7 @@
 package com.web151.geoquiz
 
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -12,24 +13,31 @@ const val IS_CHEATER_KEY = "IS_CHEATER_KEY"
 const val CHEAT_TOKENS_KEY = "CHEAT_TOKENS_KEY"
 
 class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel() {
-    private val questionBank = listOf(
-        Question(R.string.question_asia, true, false, false),
-        Question(R.string.question_americas, true, false, false),
-        Question(R.string.question_africa, false, false, false),
-        Question(R.string.question_oceans, true, false, false),
-        Question(R.string.question_mideast, false, false, false),
-        Question(R.string.question_australia, true, false, false)
+    val questionBank = listOf(
+        Question(R.string.question_asia, true),
+        Question(R.string.question_americas, true),
+        Question(R.string.question_africa, false),
+        Question(R.string.question_oceans, true),
+        Question(R.string.question_mideast, false),
+        Question(R.string.question_australia, true)
     )
 
     var cheatTokens: Int
         get() = savedStateHandle.get(CHEAT_TOKENS_KEY) ?: 3
         set(value) = savedStateHandle.set(CHEAT_TOKENS_KEY, value)
 
-    var isCheater: Boolean
-        get() = savedStateHandle.get("${IS_CHEATER_KEY}_$currentIndex") ?: false
-        set(value) = savedStateHandle.set("${IS_CHEATER_KEY}_$currentIndex", value)
+//    var isCheater: Boolean
+//        get() = savedStateHandle.get("${IS_CHEATER_KEY}_$currentIndex") ?: false
+//        set(value) = savedStateHandle.set("${IS_CHEATER_KEY}_$currentIndex", value)
 
-    private var currentIndex: Int
+    val isCheater: Boolean
+        get() = questionBank[currentIndex].isCheated
+
+    var setIsCheated: Boolean
+        get() = questionBank[currentIndex].isCheated
+        set(value) { questionBank[currentIndex].isCheated = value }
+
+    var currentIndex: Int
         get() = savedStateHandle.get(CURRENT_INDEX_KEY)?: 0
         set(value) = savedStateHandle.set(CURRENT_INDEX_KEY, value)
 
@@ -94,11 +102,12 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle): ViewModel()
         questionBank.forEach { question ->
             question.isAnswered = false
             question.isCorrect = false
+            question.isCheated = false
         }
         currentIndex = 0
         savedStateHandle.set(CURRENT_INDEX_KEY, currentIndex)
-        savedStateHandle.set(IS_CHEATER_KEY, false)
         savedStateHandle.set(CHEAT_TOKENS_KEY, 3)
+        savedStateHandle.set(IS_CHEATER_KEY, false)
     }
 
 }
